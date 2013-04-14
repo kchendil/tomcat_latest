@@ -23,7 +23,7 @@ platform=node['platform']
 platform_version=node['platform_version']
 
 
-if platform=="suse" && platform_version=="11.2"
+if platform=="suse" || platform=="centos"
 
 include_recipe "java"
 
@@ -44,9 +44,6 @@ script "Download Apache Tomcat 6 " do
   url=`grep -m 1 apache-tomcat-6.*.[0-9][0-9].tar.[g][z] /tmp/tomcat_pag.txt | cut -d '"' -f 2`
   wget $url 
   mkdir -p #{tomcat_install_loc}/tomcat6
-  filename=`echo ${url#*bin\/}`
-  filename2=`echo "${filename:0:(${#filename}-7)}"`
-  export TOMCAT_FILE=$filename2
   EOH
 end
 
@@ -76,10 +73,27 @@ template "/etc/rc.d/tomcat6" do
   mode "0755"  
 end
 
-execute "start tomcat 6" do
- user "root" 
- command "/etc/init.d/tomcat6 start" 
- action :run
+if platform=="suse" 
+
+script "Start tomcat 6" do
+  interpreter "bash"
+  user "root"
+  cwd "/tmp"
+  code <<-EOH  
+  sudo /etc/init.d/tomcat6 start
+  EOH
+end
+end
+if platform=="centos" 
+
+script "Start tomcat 6" do
+  interpreter "bash"
+  user "root"
+  cwd "/tmp"
+  code <<-EOH  
+  sudo /etc/rc.d/tomcat6 start
+  EOH
+end
 end
 
 when "7"
@@ -124,17 +138,38 @@ template "/etc/rc.d/tomcat7" do
   mode "0755"  
 end
 
-execute "Start tomcat 7" do
- user "root" 
- command "/etc/init.d/tomcat7 start" 
- action :run
+
+
+if platform=="suse" 
+
+script "Start tomcat 7" do
+  interpreter "bash"
+  user "root"
+  cwd "/tmp"
+  code <<-EOH  
+  sudo /etc/init.d/tomcat7 start
+  EOH
+end
+end
+if platform=="centos" 
+
+script "Start tomcat 7" do
+  interpreter "bash"
+  user "root"
+  cwd "/tmp"
+  code <<-EOH  
+  sudo /etc/rc.d/tomcat7 start
+  EOH
+end
+
 end
 
 end
 
 else 
-log "Not Supported OS" do
-  message "#{platform} #{platform_version} is not yet supported."
+log "#{platform} #{platform_version} is not yet supported." do
+	#message "#{platform} #{platform_version} is not yet supported."
   level :info
 end
+
 end

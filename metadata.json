@@ -6,7 +6,8 @@
   "maintainer_email": "mkchendil@gmail.com",
   "license": "Apache 2.0",
   "platforms": {
-    "suse": ">= 0.0.0"   
+    "suse": ">= 0.0.0"   ,
+	"centos": ">=0.0.0"
   },
   "dependencies": {
     "java": ">= 0.0.0"
@@ -28,5 +29,5 @@
   "recipes": {
     "tomcat::default": "Installs and Configures latest Apache Tomcat 6 or 7"
   },
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

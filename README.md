@@ -8,7 +8,7 @@ Requirements
 
 Platform:
 
-* SLES 11 SP2
+* Suse, CentOS
 
 The following Opscode cookbooks are dependencies:
 
