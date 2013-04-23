@@ -1,14 +1,14 @@
 Description
 ===========
 
-Installs and configures latest Apache Tomcat version 6 or 7.
+Installs and configures latest Apache Tomcat version 6 or 7 or specified version.
 
 Requirements
 ============
 
 Platform:
 
-* Suse, CentOS
+* Suse, CentOS, Fedora
 
 The following Opscode cookbooks are dependencies:
 
@@ -22,6 +22,7 @@ Attributes
 * `node["tomcat_latest"]["ajp_port"]` - The network port used by Tomcat's AJP connector, default `8009`. 
 * `node['tomcat_latest']['tomcat_install_loc']` - The tomcat install location, default `/tmp/apache`
 * `node['tomcat_latest']['tomcat_version']` - The tomcat version to be installed, default `7`
+* `node['tomcat_latest']['direct_download_url']` - Specify the apache tomcat build location to use a specific version. Eg: http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.35/bin/apache-tomcat-7.0.35.tar.gz
 
 Usage
 =====

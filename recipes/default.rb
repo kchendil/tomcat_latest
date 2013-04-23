@@ -21,9 +21,80 @@ tomcat_version = node['tomcat_latest']['tomcat_version']
 tomcat_install_loc=node['tomcat_latest']['tomcat_install_loc']
 platform=node['platform']
 platform_version=node['platform_version']
+direct_download_url=node['tomcat_latest']['direct_download_url']
+
+if platform=="suse" || platform=="centos" || platform=="fedora"
+
+if direct_download_url!="na"
+
+include_recipe "java"
+
+#convert version number to a string if it isn't already
+if tomcat_version.instance_of? Fixnum
+  tomcat_version = tomcat_version.to_s
+end
+script "Download Apache Tomcat #{direct_download_url}" do
+  interpreter "bash"
+  user "root"
+  cwd "/tmp"
+  code <<-EOH
+  wget #{direct_download_url}
+  mkdir -p #{tomcat_install_loc}/tomcat
+  EOH
+end
+
+execute "Unzip Apache Tomcat binary file" do
+ user "root"
+ installation_dir = "/tmp"
+ cwd installation_dir
+ command "tar zxvf /tmp/apache-tomcat-* -C #{tomcat_install_loc}/tomcat" 
+ action :run
+end
 
 
-if platform=="suse" || platform=="centos"
+execute "Change the directory name to apache-tomcat" do
+ user "root" 
+ cwd #{tomcat_install_loc}/tomcat
+ command "cd #{tomcat_install_loc}/tomcat; mv apache-tomcat-* apache-tomcat"
+ action :run
+end
+
+
+template "#{tomcat_install_loc}/tomcat/apache-tomcat/conf/server.xml" do
+  source "server6.xml.erb"
+  owner "root" 
+  mode "0644"  
+end
+template "/etc/rc.d/tomcat" do
+  source "tomcat.erb"
+  owner "root" 
+  mode "0755"  
+end
+if platform=="suse" 
+
+script "Start tomcat" do
+  interpreter "bash"
+  user "root"
+  cwd "/tmp"
+  code <<-EOH  
+  sudo /etc/init.d/tomcat start
+  EOH
+end
+end
+if platform=="centos" || platform=="fedora"
+
+script "Start tomcat" do
+  interpreter "bash"
+  user "root"
+  cwd "/tmp"
+  code <<-EOH  
+  sudo /etc/rc.d/tomcat start
+  EOH
+end
+end
+end
+if direct_download_url=="na"
+
 
 include_recipe "java"
 
@@ -84,7 +155,7 @@ script "Start tomcat 6" do
   EOH
 end
 end
-if platform=="centos" 
+if platform=="centos" || platform=="fedora"
 
 script "Start tomcat 6" do
   interpreter "bash"
@@ -151,7 +222,7 @@ script "Start tomcat 7" do
   EOH
 end
 end
-if platform=="centos" 
+if platform=="centos" || platform == "fedora"
 
 script "Start tomcat 7" do
   interpreter "bash"
@@ -166,10 +237,14 @@ end
 
 end
 
-else 
-log "#{platform} #{platform_version} is not yet supported." do
-	#message "#{platform} #{platform_version} is not yet supported."
-  level :info
+# else 
+# log "#{platform} #{platform_version} is not yet supported." do
+	# #message "#{platform} #{platform_version} is not yet supported."
+  # level :info
+# end
 end
+
+
+
 
 end
