@@ -30,5 +30,5 @@
   "recipes": {
     "tomcat::default": "Installs and Configures latest Apache Tomcat 6 or 7 or specified version"
   },
-  "version": "0.1.2"
+  "version": "0.1.3"
 }

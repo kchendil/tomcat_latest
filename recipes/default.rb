@@ -21,30 +21,37 @@ tomcat_version = node['tomcat_latest']['tomcat_version']
 tomcat_install_loc=node['tomcat_latest']['tomcat_install_loc']
 platform=node['platform']
 platform_version=node['platform_version']
-direct_download_url=node['tomcat_latest']['direct_download_url']
+direct_download_version=node['tomcat_latest']['direct_download_version']
+tomcat_user=node['tomcat_latest']['tomcat_user']
+
+
 
 if platform=="suse" || platform=="centos" || platform=="fedora"
 
-if direct_download_url!="na"
+if direct_download_version!="na"
 
 include_recipe "java"
-
-#convert version number to a string if it isn't already
-if tomcat_version.instance_of? Fixnum
-  tomcat_version = tomcat_version.to_s
+if ( direct_download_version =~ /7(.*)/ ) 
+  direct_download_url= "http://archive.apache.org/dist/tomcat/tomcat-7/v"+"#{direct_download_version}"+"/bin/apache-tomcat-#{direct_download_version}.tar.gz";
+else if ( direct_download_version =~ /6(.*)/ )
+   direct_download_url= "http://archive.apache.org/dist/tomcat/tomcat-6/v"+"#{direct_download_version}"+"/bin/apache-tomcat-#{direct_download_version}.tar.gz";
+else 
+	abort("Unsupported tomcat version "+"#{direct_download_version}"+"specified")
+	end
 end
-script "Download Apache Tomcat #{direct_download_url}" do
+
+script "Download Apache Tomcat #{direct_download_version}" do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH
-  wget #{direct_download_url}
+  wget "#{direct_download_url}" -O "/tmp/apache-tomcat-#{direct_download_version}.tar.gz"
   mkdir -p #{tomcat_install_loc}/tomcat
   EOH
 end
 
 execute "Unzip Apache Tomcat binary file" do
- user "root"
+ user "#{tomcat_user}"
  installation_dir = "/tmp"
  cwd installation_dir
  command "tar zxvf /tmp/apache-tomcat-* -C #{tomcat_install_loc}/tomcat" 
@@ -53,31 +60,32 @@ end
 
 
 execute "Change the directory name to apache-tomcat" do
- user "root" 
+ user "#{tomcat_user}"
  cwd #{tomcat_install_loc}/tomcat
  command "cd #{tomcat_install_loc}/tomcat; mv apache-tomcat-* apache-tomcat"
  action :run
 end
 
 
-template "#{tomcat_install_loc}/tomcat/apache-tomcat/conf/server.xml" do
+   
+ template "#{tomcat_install_loc}/tomcat/apache-tomcat/conf/server.xml" do
   source "server6.xml.erb"
-  owner "root" 
+  owner "#{tomcat_user}"
   mode "0644"  
 end
 template "/etc/rc.d/tomcat" do
   source "tomcat.erb"
-  owner "root" 
+  owner "#{tomcat_user}"
   mode "0755"  
 end
 if platform=="suse" 
 
 script "Start tomcat" do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH  
-  sudo /etc/init.d/tomcat start
+  /etc/init.d/tomcat start
   EOH
 end
 end
@@ -85,15 +93,15 @@ if platform=="centos" || platform=="fedora"
 
 script "Start tomcat" do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH  
-  sudo /etc/rc.d/tomcat start
+  /etc/rc.d/tomcat start
   EOH
 end
 end
 end
-if direct_download_url=="na"
+if direct_download_version=="na"
 
 
 include_recipe "java"
@@ -108,7 +116,7 @@ when "6"
 tomcat_url = node['tomcat_latest']['tomcat_url_6']
 script "Download Apache Tomcat 6 " do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH
   wget #{tomcat_url} -O /tmp/tomcat_pag.txt
@@ -119,14 +127,14 @@ script "Download Apache Tomcat 6 " do
 end
 
 execute "Unzip Apache Tomcat 6 binary file" do
- user "root"
+ user "#{tomcat_user}"
  installation_dir = "/tmp"
  cwd installation_dir
  command "tar zxvf /tmp/apache-tomcat-6.*.tar.gz -C #{tomcat_install_loc}/tomcat6" 
  action :run
 end
 execute "Change the directory name to apache-tomcat-6" do
- user "root" 
+ user "#{tomcat_user}" 
  cwd #{tomcat_install_loc}/tomcat6
  command "cd #{tomcat_install_loc}/tomcat6; mv apache-tomcat-6.* apache-tomcat-6"
  action :run
@@ -135,12 +143,12 @@ end
 
 template "#{tomcat_install_loc}/tomcat6/apache-tomcat-6/conf/server.xml" do
   source "server6.xml.erb"
-  owner "root" 
+  owner "#{tomcat_user}"
   mode "0644"  
 end
 template "/etc/rc.d/tomcat6" do
   source "tomcat6.erb"
-  owner "root" 
+  owner "#{tomcat_user}"
   mode "0755"  
 end
 
@@ -148,10 +156,10 @@ if platform=="suse"
 
 script "Start tomcat 6" do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH  
-  sudo /etc/init.d/tomcat6 start
+  /etc/init.d/tomcat6 start
   EOH
 end
 end
@@ -159,10 +167,10 @@ if platform=="centos" || platform=="fedora"
 
 script "Start tomcat 6" do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH  
-  sudo /etc/rc.d/tomcat6 start
+  /etc/rc.d/tomcat6 start
   EOH
 end
 end
@@ -171,7 +179,7 @@ when "7"
 tomcat_url = node['tomcat_latest']['tomcat_url_7']
 script "Download Apache Tomcat 7 " do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH
   wget #{tomcat_url} -O /tmp/tomcat_pag.txt
@@ -182,7 +190,7 @@ script "Download Apache Tomcat 7 " do
 end
 
 execute "Unzip Apache Tomcat 7 binary file" do
- user "root"
+ user "#{tomcat_user}"
  installation_dir = "/tmp"
  cwd installation_dir
  command "tar zxvf /tmp/apache-tomcat-7.*.tar.gz -C #{tomcat_install_loc}/tomcat7" 
@@ -191,7 +199,7 @@ end
 
 
 execute "Change the directory name to apache-tomcat-7" do
- user "root" 
+ user "#{tomcat_user}"
  cwd #{tomcat_install_loc}/tomcat7
  command "cd #{tomcat_install_loc}/tomcat7; mv apache-tomcat-7.* apache-tomcat-7"
  action :run
@@ -200,12 +208,12 @@ end
 
 template "#{tomcat_install_loc}/tomcat7/apache-tomcat-7/conf/server.xml" do
   source "server7.xml.erb"
-  owner "root" 
+  owner "#{tomcat_user}" 
   mode "0644"  
 end
 template "/etc/rc.d/tomcat7" do
   source "tomcat7.erb"
-  owner "root" 
+  owner "#{tomcat_user}" 
   mode "0755"  
 end
 
@@ -215,7 +223,7 @@ if platform=="suse"
 
 script "Start tomcat 7" do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH  
   sudo /etc/init.d/tomcat7 start
@@ -226,7 +234,7 @@ if platform=="centos" || platform == "fedora"
 
 script "Start tomcat 7" do
   interpreter "bash"
-  user "root"
+  user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH  
   sudo /etc/rc.d/tomcat7 start

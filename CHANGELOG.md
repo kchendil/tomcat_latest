@@ -9,3 +9,7 @@
 ## v0.1.2:
 
 -Supports fedora and install and configure specified version.
+
+## v0.1.3:
+
+-Can specify the user to run tomcat as and bug fix on the version specification.
