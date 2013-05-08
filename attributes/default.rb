@@ -23,7 +23,7 @@ default['tomcat_latest']['tomcat_version'] = '7'
 default["tomcat_latest"]["port"] = 8080
 default["tomcat_latest"]["ssl_port"] = 8443
 default["tomcat_latest"]["ajp_port"] = 8009
-default["tomcat_latest"]["java_options"] = "-Xmx128M -Djava.awt.headless=true"
+default["tomcat_latest"]["java_options"] = "-Xmx128M"
 default["tomcat_latest"]["use_security_manager"] = false
 default["tomcat_latest"]["authbind"] = "no"
 default['tomcat_latest']['direct_download_version'] = "na"

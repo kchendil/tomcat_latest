@@ -8,7 +8,8 @@
   "platforms": {
     "suse": ">= 0.0.0",
 	"centos": ">=0.0.0",
-	"fedora": ">=0.0.0"
+	"fedora": ">=0.0.0",
+	"ubuntu": ">=0.0.0"
   },
   "dependencies": {
     "java": ">= 0.0.0"
@@ -30,5 +31,5 @@
   "recipes": {
     "tomcat::default": "Installs and Configures latest Apache Tomcat 6 or 7 or specified version"
   },
-  "version": "0.1.3"
+  "version": "0.1.4"
 }

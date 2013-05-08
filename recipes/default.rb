@@ -26,7 +26,7 @@ tomcat_user=node['tomcat_latest']['tomcat_user']
 
 
 
-if platform=="suse" || platform=="centos" || platform=="fedora"
+if platform=="suse" || platform=="centos" || platform=="fedora" || platform=="ubuntu"
 
 if direct_download_version!="na"
 
@@ -50,13 +50,18 @@ script "Download Apache Tomcat #{direct_download_version}" do
   EOH
 end
 
-execute "Unzip Apache Tomcat binary file" do
- user "#{tomcat_user}"
- installation_dir = "/tmp"
- cwd installation_dir
- command "tar zxvf /tmp/apache-tomcat-* -C #{tomcat_install_loc}/tomcat" 
- action :run
+# execute "Unzip Apache Tomcat binary file" do
+ # user "#{tomcat_user}"
+ # installation_dir = "/tmp"
+ # cwd installation_dir
+ # command "tar zxvf /tmp/apache-tomcat-* -C #{tomcat_install_loc}/tomcat" 
+ # action :run
+# end
+
+unzip_tomcat "tomcat" do
+  enable true
 end
+
 
 
 execute "Change the directory name to apache-tomcat" do
@@ -66,19 +71,41 @@ execute "Change the directory name to apache-tomcat" do
  action :run
 end
 
-
+if ( direct_download_version =~ /7(.*)/ ) 
    
  template "#{tomcat_install_loc}/tomcat/apache-tomcat/conf/server.xml" do
-  source "server6.xml.erb"
+  source "server7.xml.erb"
   owner "#{tomcat_user}"
   mode "0644"  
 end
+else if ( direct_download_version =~ /6(.*)/ )
+
+template "#{tomcat_install_loc}/tomcat/apache-tomcat/conf/server.xml" do
+  source "server6.xml.erb"
+  owner "#{tomcat_user}"
+  mode "0644"  
+  end
+  
+else 
+	abort("Unsupported tomcat version "+"#{direct_download_version}"+"specified")
+	end
+end
+if platform=="suse" || platform=="centos" || platform=="fedora"
 template "/etc/rc.d/tomcat" do
   source "tomcat.erb"
   owner "#{tomcat_user}"
   mode "0755"  
 end
-if platform=="suse" 
+end
+
+if platform=="ubuntu"
+template "/etc/init.d/tomcat" do
+  source "tomcat.erb"
+  owner "#{tomcat_user}"
+  mode "0755"  
+end
+end
+if platform=="suse" || platform=="ubuntu"
 
 script "Start tomcat" do
   interpreter "bash"
@@ -146,15 +173,25 @@ template "#{tomcat_install_loc}/tomcat6/apache-tomcat-6/conf/server.xml" do
   owner "#{tomcat_user}"
   mode "0644"  
 end
+if platform=="suse" || platform=="centos" || platform=="fedora"
 template "/etc/rc.d/tomcat6" do
   source "tomcat6.erb"
   owner "#{tomcat_user}"
   mode "0755"  
 end
+end
 
-if platform=="suse" 
+if platform=="ubuntu"
+template "/etc/init.d/tomcat6" do
+  source "tomcat6.erb"
+  owner "#{tomcat_user}"
+  mode "0755"  
+end
+end
 
-script "Start tomcat 6" do
+if platform=="suse" ||platform=="ubuntu"
+
+script "Start tomcat 6 on #{platform}" do
   interpreter "bash"
   user "#{tomcat_user}"
   cwd "/tmp"
@@ -163,9 +200,9 @@ script "Start tomcat 6" do
   EOH
 end
 end
-if platform=="centos" || platform=="fedora"
+if platform=="centos" || platform=="fedora" 
 
-script "Start tomcat 6" do
+script "Start tomcat 6 on #{platform}" do
   interpreter "bash"
   user "#{tomcat_user}"
   cwd "/tmp"
@@ -211,12 +248,21 @@ template "#{tomcat_install_loc}/tomcat7/apache-tomcat-7/conf/server.xml" do
   owner "#{tomcat_user}" 
   mode "0644"  
 end
+if platform=="suse" || platform=="centos" || platform=="fedora"
 template "/etc/rc.d/tomcat7" do
   source "tomcat7.erb"
-  owner "#{tomcat_user}" 
+  owner "#{tomcat_user}"
   mode "0755"  
 end
+end
 
+if platform=="ubuntu" 
+template "/etc/init.d/tomcat7" do
+  source "tomcat7.erb"
+  owner "#{tomcat_user}"
+  mode "0755"  
+end
+end
 
 
 if platform=="suse" 
