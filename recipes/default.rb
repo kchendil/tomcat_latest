@@ -23,10 +23,11 @@ platform=node['platform']
 platform_version=node['platform_version']
 direct_download_version=node['tomcat_latest']['direct_download_version']
 tomcat_user=node['tomcat_latest']['tomcat_user']
+auto_start=node['tomcat_latest']['auto_start']
 
 
 
-if platform=="suse" || platform=="centos" || platform=="fedora" || platform=="ubuntu"
+if platform=="suse" || platform=="centos" || platform=="fedora" || platform=="ubuntu" || platform=="debian"
 
 if direct_download_version!="na"
 
@@ -58,7 +59,7 @@ end
  # action :run
 # end
 
-unzip_tomcat "tomcat" do
+unzip_tomcat6or7 "d" do
   enable true
 end
 
@@ -98,14 +99,15 @@ template "/etc/rc.d/tomcat" do
 end
 end
 
-if platform=="ubuntu"
+if platform=="ubuntu" || platform=="debian"
 template "/etc/init.d/tomcat" do
   source "tomcat.erb"
   owner "#{tomcat_user}"
   mode "0755"  
 end
 end
-if platform=="suse" || platform=="ubuntu"
+if auto_start=="true"
+if platform=="suse" || platform=="ubuntu"|| platform=="debian"
 
 script "Start tomcat" do
   interpreter "bash"
@@ -125,6 +127,7 @@ script "Start tomcat" do
   code <<-EOH  
   /etc/rc.d/tomcat start
   EOH
+end
 end
 end
 end
@@ -153,12 +156,16 @@ script "Download Apache Tomcat 6 " do
   EOH
 end
 
-execute "Unzip Apache Tomcat 6 binary file" do
- user "#{tomcat_user}"
- installation_dir = "/tmp"
- cwd installation_dir
- command "tar zxvf /tmp/apache-tomcat-6.*.tar.gz -C #{tomcat_install_loc}/tomcat6" 
- action :run
+# execute "Unzip Apache Tomcat 6 binary file" do
+ # user "#{tomcat_user}"
+ # installation_dir = "/tmp"
+ # cwd installation_dir
+ # command "tar zxvf /tmp/apache-tomcat-6.*.tar.gz -C #{tomcat_install_loc}/tomcat6" 
+ # action :run
+# end
+
+unzip_tomcat6or7 "6" do
+  enable true
 end
 execute "Change the directory name to apache-tomcat-6" do
  user "#{tomcat_user}" 
@@ -181,15 +188,15 @@ template "/etc/rc.d/tomcat6" do
 end
 end
 
-if platform=="ubuntu"
+if platform=="ubuntu" || platform=="debian"
 template "/etc/init.d/tomcat6" do
   source "tomcat6.erb"
   owner "#{tomcat_user}"
   mode "0755"  
 end
 end
-
-if platform=="suse" ||platform=="ubuntu"
+if auto_start =="true"
+if platform=="suse" ||platform=="ubuntu" || platform=="debian"
 
 script "Start tomcat 6 on #{platform}" do
   interpreter "bash"
@@ -211,6 +218,7 @@ script "Start tomcat 6 on #{platform}" do
   EOH
 end
 end
+end
 
 when "7"
 tomcat_url = node['tomcat_latest']['tomcat_url_7']
@@ -226,14 +234,17 @@ script "Download Apache Tomcat 7 " do
   EOH
 end
 
-execute "Unzip Apache Tomcat 7 binary file" do
- user "#{tomcat_user}"
- installation_dir = "/tmp"
- cwd installation_dir
- command "tar zxvf /tmp/apache-tomcat-7.*.tar.gz -C #{tomcat_install_loc}/tomcat7" 
- action :run
-end
+# execute "Unzip Apache Tomcat 7 binary file" do
+ # user "#{tomcat_user}"
+ # installation_dir = "/tmp"
+ # cwd installation_dir
+ # command "tar zxvf /tmp/apache-tomcat-7.*.tar.gz -C #{tomcat_install_loc}/tomcat7" 
+ # action :run
+# end
 
+unzip_tomcat6or7 "7" do
+  enable true
+end
 
 execute "Change the directory name to apache-tomcat-7" do
  user "#{tomcat_user}"
@@ -264,15 +275,15 @@ template "/etc/init.d/tomcat7" do
 end
 end
 
-
-if platform=="suse" 
+if auto_start =="true"
+if platform=="suse" ||platform=="ubuntu" || platform=="debian"
 
 script "Start tomcat 7" do
   interpreter "bash"
   user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH  
-  sudo /etc/init.d/tomcat7 start
+  /etc/init.d/tomcat7 start
   EOH
 end
 end
@@ -283,22 +294,22 @@ script "Start tomcat 7" do
   user "#{tomcat_user}"
   cwd "/tmp"
   code <<-EOH  
-  sudo /etc/rc.d/tomcat7 start
+  /etc/rc.d/tomcat7 start
   EOH
 end
 
 end
+end
 
 end
 
-# else 
-# log "#{platform} #{platform_version} is not yet supported." do
-	# #message "#{platform} #{platform_version} is not yet supported."
-  # level :info
-# end
 end
 
 
+else
 
+Chef::Log.info("#{platform} #{platform_version} is not yet supported.")
 
 end
+
+

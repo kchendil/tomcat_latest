@@ -17,3 +17,7 @@
 ## v0.1.4:
 
 -Support for java_opts and Ubuntu
+
+## v0.1.5:
+
+-Support for auto_start attribute and Debian Linux

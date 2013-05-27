@@ -28,6 +28,7 @@ default["tomcat_latest"]["use_security_manager"] = false
 default["tomcat_latest"]["authbind"] = "no"
 default['tomcat_latest']['direct_download_version'] = "na"
 default['tomcat_latest']['tomcat_user'] = "root"
+default['tomcat_latest']['auto_start'] = "true"
 
 case platform
 when "suse"
