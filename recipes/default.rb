@@ -26,6 +26,7 @@ tomcat_user=node['tomcat_latest']['tomcat_user']
 auto_start=node['tomcat_latest']['auto_start']
 
 
+if ( !(File.exists?("/etc/init.d/tomcat7") || File.exists?("/etc/init.d/tomcat6") || File.exists?("/etc/init.d/tomcat") || File.exists?("/etc/rc.d/tomcat7") || File.exists?("/etc/rc.d/tomcat6") || File.exists?("/etc/rc.d/tomcat")))
 
 if platform=="suse" || platform=="centos" || platform=="fedora" || platform=="ubuntu" || platform=="debian"
 
@@ -51,14 +52,6 @@ script "Download Apache Tomcat #{direct_download_version}" do
   EOH
 end
 
-# execute "Unzip Apache Tomcat binary file" do
- # user "#{tomcat_user}"
- # installation_dir = "/tmp"
- # cwd installation_dir
- # command "tar zxvf /tmp/apache-tomcat-* -C #{tomcat_install_loc}/tomcat" 
- # action :run
-# end
-
 unzip_tomcat6or7 "d" do
   enable true
 end
@@ -69,7 +62,8 @@ execute "Change the directory name to apache-tomcat" do
  user "#{tomcat_user}"
  cwd #{tomcat_install_loc}/tomcat
  command "cd #{tomcat_install_loc}/tomcat; mv apache-tomcat-* apache-tomcat"
- action :run
+  not_if { ::File.directory?("/#{tomcat_install_loc}/tomcat/apache-tomcat")}
+  action :run
 end
 
 if ( direct_download_version =~ /7(.*)/ ) 
@@ -156,13 +150,6 @@ script "Download Apache Tomcat 6 " do
   EOH
 end
 
-# execute "Unzip Apache Tomcat 6 binary file" do
- # user "#{tomcat_user}"
- # installation_dir = "/tmp"
- # cwd installation_dir
- # command "tar zxvf /tmp/apache-tomcat-6.*.tar.gz -C #{tomcat_install_loc}/tomcat6" 
- # action :run
-# end
 
 unzip_tomcat6or7 "6" do
   enable true
@@ -181,10 +168,8 @@ template "#{tomcat_install_loc}/tomcat6/apache-tomcat-6/conf/server.xml" do
   mode "0644"  
 end
 if platform=="suse" || platform=="centos" || platform=="fedora"
-template "/etc/rc.d/tomcat6" do
-  source "tomcat6.erb"
-  owner "#{tomcat_user}"
-  mode "0755"  
+template6or7 "6" do
+  user true
 end
 end
 
@@ -234,14 +219,6 @@ script "Download Apache Tomcat 7 " do
   EOH
 end
 
-# execute "Unzip Apache Tomcat 7 binary file" do
- # user "#{tomcat_user}"
- # installation_dir = "/tmp"
- # cwd installation_dir
- # command "tar zxvf /tmp/apache-tomcat-7.*.tar.gz -C #{tomcat_install_loc}/tomcat7" 
- # action :run
-# end
-
 unzip_tomcat6or7 "7" do
   enable true
 end
@@ -260,10 +237,8 @@ template "#{tomcat_install_loc}/tomcat7/apache-tomcat-7/conf/server.xml" do
   mode "0644"  
 end
 if platform=="suse" || platform=="centos" || platform=="fedora"
-template "/etc/rc.d/tomcat7" do
-  source "tomcat7.erb"
-  owner "#{tomcat_user}"
-  mode "0755"  
+template6or7 "7" do
+  user "#{tomcat_user}"
 end
 end
 
@@ -312,4 +287,8 @@ Chef::Log.info("#{platform} #{platform_version} is not yet supported.")
 
 end
 
+else
+
+Chef::Log.info("tomcat_latest chef cookbook is already installed")
+end
 

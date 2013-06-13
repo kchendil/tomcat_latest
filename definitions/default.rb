@@ -32,7 +32,26 @@ execute "Unzip Apache Tomcat binary file" do
 end
 
 end
-  
 
+
+end
+
+
+define :template6or7,  :user => "vagrant"  do
+  if params[:name]=="6"
+template "/etc/rc.d/tomcat6" do
+  source "tomcat6.erb"
+  owner params[:enable]
+  mode "0755"  
+end
+end
+
+  if params[:name]=="7"
+template "/etc/rc.d/tomcat7" do
+  source "tomcat7.erb"
+  owner params[:user]
+  mode "0755"  
+end
+end
 
 end

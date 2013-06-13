@@ -21,3 +21,7 @@
 ## v0.1.5:
 
 -Support for auto_start attribute and Debian Linux
+
+## v0.1.6:
+
+-Bug fix: If the recipe is already installed do not download and install tomcat.
