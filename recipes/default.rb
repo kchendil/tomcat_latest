@@ -28,7 +28,7 @@ auto_start=node['tomcat_latest']['auto_start']
 
 if !(File.exists?('/etc/init.d/tomcat7') || File.exists?('/etc/init.d/tomcat6') || File.exists?('/etc/init.d/tomcat') || File.exists?('/etc/rc.d/tomcat7') || File.exists?('/etc/rc.d/tomcat6') || File.exists?('/etc/rc.d/tomcat'))
 
-  if platform=='suse' || platform=='centos' || platform=='fedora' || platform=='ubuntu' || platform=='debian'
+  if platform=='suse' || platform=='centos' || platform=='fedora' || platform=='ubuntu' || platform=='debian' || platform=='oracle'
 
     if direct_download_version!='na'
 
@@ -76,7 +76,7 @@ if !(File.exists?('/etc/init.d/tomcat7') || File.exists?('/etc/init.d/tomcat6') 
           abort('Unsupported tomcat version '+"#{direct_download_version}"+'specified')
         end
       end
-      if platform=='suse' || platform=='centos' || platform=='fedora'
+      if platform=='suse' || platform=='centos' || platform=='fedora' || platform=='oracle'
         template '/etc/init.d/tomcat' do
           source 'tomcat.erb'
           mode '0755'
@@ -101,7 +101,7 @@ if !(File.exists?('/etc/init.d/tomcat7') || File.exists?('/etc/init.d/tomcat6') 
             EOH
           end
         end
-        if platform=='centos' || platform=='fedora'
+        if platform=='centos' || platform=='fedora' || platform=='oracle'
 
           script 'Start tomcat' do
             interpreter 'bash'
@@ -149,7 +149,7 @@ if !(File.exists?('/etc/init.d/tomcat7') || File.exists?('/etc/init.d/tomcat6') 
             owner "#{tomcat_user}"
             mode '0644'
           end
-          if platform=='suse' || platform=='centos' || platform=='fedora'
+          if platform=='suse' || platform=='centos' || platform=='fedora' || platform=='oracle'
             template6or7 '6' do
               user true
             end
@@ -174,7 +174,7 @@ if !(File.exists?('/etc/init.d/tomcat7') || File.exists?('/etc/init.d/tomcat6') 
                 EOH
               end
             end
-            if platform=='centos' || platform=='fedora'
+            if platform=='centos' || platform=='fedora' || platform=='oracle'
 
               script "Start tomcat 6 on #{platform}" do
                 interpreter 'bash'
@@ -210,7 +210,7 @@ if !(File.exists?('/etc/init.d/tomcat7') || File.exists?('/etc/init.d/tomcat6') 
             owner "#{tomcat_user}"
             mode '0644'
           end
-          if platform=='suse' || platform=='centos' || platform=='fedora'
+          if platform=='suse' || platform=='centos' || platform=='fedora' || platform=='oracle'
             template6or7 '7' do
               user "#{tomcat_user}"
             end
@@ -233,7 +233,7 @@ if !(File.exists?('/etc/init.d/tomcat7') || File.exists?('/etc/init.d/tomcat6') 
                 EOH
               end
             end
-            if platform=='centos' || platform == 'fedora'
+            if platform=='centos' || platform == 'fedora' || platform=='oracle'
               script 'Start tomcat 7' do
                 interpreter 'bash'
                 cwd '/tmp'

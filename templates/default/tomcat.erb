@@ -23,7 +23,7 @@ export JRE_HOME=$JAVA_HOME
 export PATH=$JAVA_HOME/bin:$PATH
 export CATALINA_HOME=<%= node["tomcat_latest"]["tomcat_install_loc"] %>/tomcat
 export TOMCAT_HOME=<%= node["tomcat_latest"]["tomcat_install_loc"] %>/tomcat
-export CATALINA_OPTS="-server -Xms512m -Xmx512m -XX:MaxPermSize=128m"
+export CATALINA_OPTS=<%= node["tomcat_latest"]["java_options"] %>
 
 SHUTDOWN_WAIT=20
 
